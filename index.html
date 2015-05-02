@@ -30,13 +30,13 @@ var width = 960,
 
 
       var
-        color_q0 = 'rgb(198,219,239)',
-        color_q1 = 'rgb(158,202,225)',
-        color_q2 = 'rgb(107,174,214)',
+        color_q6 = 'rgb(198,219,239)',
+        color_q5 = 'rgb(158,202,225)',
+        color_q4 = 'rgb(107,174,214)',
         color_q3 = 'rgb(66,146,198)',
-        color_q4 = 'rgb(33,113,181)',
-        color_q5 = 'rgb(8,81,156)',
-        color_q6 = 'rgb(8,48,107)',
+        color_q2 = 'rgb(33,113,181)',
+        color_q1 = 'rgb(8,81,156)',
+        color_q0 = 'rgb(8,48,107)',
         colorScale = [
           color_q0,
           color_q1,
@@ -46,12 +46,6 @@ var width = 960,
           color_q5,
           color_q6
         ] // array used to generate color scale
-
-      // input: 0 to 10 percent of GDP
-      // output: q0 through q8
-      //var quantize = d3.scale.quantize()
-      //  .domain([0, 16])
-      //  .range(d3.range(7).map(function(i) { return "q" + i; }));
 
       var quantize = d3.scale.threshold()
         .domain([0.38, 0.68, 0.97, 1.33, 1.91, 2.99, 17.14])
@@ -134,7 +128,7 @@ var date = ["2.99" + "-" + "17.14", "1.91" + "-" + "2.99",
    "1.33" + "-" + "1.91", "0.97" + "-" + "1.33", "0.68" + "-" + "0.97",
     "0.38" + "-" + "0.68", "0" + "-" + "0.38" ];
  
-
+/*
 // draw the legend
 d3.select('.legend').selectAll('.legend')
 .data(colorScale)
@@ -163,6 +157,38 @@ d3.select('.legend').selectAll('.legend')
     .attr("font-family", "sans-serif")
     .attr("font-size", "10px")
     .attr("fill", "black");
+*/
+
+ 
+        // draw the legend
+        d3.select('.legend').selectAll('.legend')
+        .data(colorScale)
+        .enter()
+          .append('rect')
+            .attr('x', legendOffsetX)
+            .attr('y', function(d,i) {
+              return legendOffsetY + legendBarHeight*i;
+            })
+            .attr('width', legendBarWidth)
+            .attr('height', legendBarHeight)
+            .attr('fill', function(d){ return d; });
+
+        d3.select('.legend').selectAll('.legend')
+        .data(colorScale)
+        .enter()
+          .append('text')
+          .text(function(d,i){
+              var quantizedRange = quantize.invertExtent('q'+i);
+              return date[i];
+            })
+            .attr('x', legendOffsetX+(legendBarWidth*1.25))
+            .attr('y', function(d,i){
+              return legendOffsetY + (legendBarHeight*0.9) + legendBarHeight*i;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "10px")
+            .attr("fill", "black");
+
 
 
 
