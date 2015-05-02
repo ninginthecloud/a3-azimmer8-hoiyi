@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-
+<title> Global Warming Data </title>
+<h2> CO2 Emission across Counties from 1960 to 2010  </h2>
 <body>
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="http://d3js.org/topojson.v1.min.js"></script>
@@ -218,6 +219,19 @@ d3.select('.legend').selectAll('.legend')
     .attr("font-size", "10px")
     .attr("fill", "black");
 
+     
+        d3.select('.legend').selectAll('.legend')
+        .data(colorScale)
+        .enter()
+          .append('text')
+            .text("CO2 Intensity")
+            .attr("class", "caption")
+            .attr('x', legendOffsetX)
+            .attr('y', legendOffsetY-0.8)
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "12px")
+            .attr("fill", "black");
+            
 
 
 
