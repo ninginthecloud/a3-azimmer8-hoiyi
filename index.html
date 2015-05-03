@@ -28,8 +28,8 @@
 </head>
 <body>
   <div class="wrapper">
-   <label for="amount">CO2 Emission for Year: </label>
-   <input  type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold;" />
+   <h for="amount" >CO2 Emission for Year: </h>
+   <input  id="amount", value= 1960 style="border:0; color:#f6931f; font-weight:bold; font-size:24px" />
    <link rel="stylesheet" href="d3.slider.css" />  
    <div  id="slider"></div>
 	<div id="container1" style="position: relative; width: 80%; max-height: 450px;"></div>
@@ -182,17 +182,19 @@ var load_data = function(Year) {
 var update_data = function(Year) {
     map.updateChoropleth(fullData[Year]);
 };
-d3.select('#slider').call(d3.slider().axis(true).min(1960).max(2010).step(1));
+
+d3.select('#slider').call(d3.slider().axis(true).min(1960).max(2010).step(1).on("slide",function(evt,value){
+	d3.select( "#amount" ).property("value", value);
+}));
+ 
+//load_data(1960);
+update_data(1960);
 
 
-load_data(1960);
-//update_data(1960);
-
-
-//d3.selectAll("input").on("change", function change() {
- //   var Year = this.value;
- //   update_data(Year);
-//});
+d3.selectAll("input").on("change", function change() {
+    var Year = +this.value;
+    update_data(Year);
+});
 
 
 // append the container for the legend
