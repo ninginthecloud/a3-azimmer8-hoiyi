@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <title> Global Warming Data </title>
 <style>
+
     body {
       font-family: Verdana,Arial,sans-serif;
     }
@@ -18,9 +19,9 @@
     }
     .wrapper > div {
       margin: 10px 0;
-    }
+    
 
-    }
+    
   </style>
 <h2> CO2 Emission across Counties from 1960 to 2010  </h2>
 
@@ -183,18 +184,19 @@ var update_data = function(Year) {
     map.updateChoropleth(fullData[Year]);
 };
 
-d3.select('#slider').call(d3.slider().axis(true).min(1960).max(2010).step(1).on("slide",function(evt,value){
-	d3.select( "#amount" ).property("value", value);
-}));
+
  
 //load_data(1960);
 update_data(1960);
 
+d3.select('#slider').call(d3.slider().axis(true).min(1960).max(2010).step(1).on("slide",function(evt,value){
+	d3.select( "#amount" ).property("value", value);
+}));
 
-d3.selectAll("input").on("change", function change() {
-    var Year = +this.value;
-    update_data(Year);
-});
+//d3.selectAll("input").on("change", function change() {
+//    var Year = +this.value;
+//    update_data(Year);
+//});
 
 
 // append the container for the legend
