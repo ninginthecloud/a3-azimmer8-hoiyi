@@ -1,56 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
+<meta charset="utf-8">
 <title> Global Warming Data </title>
 <style>
 
-    body {
-      font-family: Verdana,Arial,sans-serif;
-    }
-    h2 {
-      font-size: 1.2em;
-      margin: 60px 0 5px 0;
-    }
-    .wrapper {
-      width: 1200px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .wrapper > div {
-      margin: 10px 0;
-    
-
-    
-  </style>
-<h2> CO2 Emission across Counties from 1960 to 2010  </h2>
-
   
-</head>
+	.d3-slider{
+	width: 400px;
+	margin-left:0px;
+	margin-right:auto;
+	}
+	
+  </style>
+  
+<h2> CO2 Emission across Countries from 1960 to 2008  </h2>
 <body>
-  <div class="wrapper">
-   <h for="amount" >CO2 Emission for Year: </h>
-   <input  id="amount", value= 1960 style="border:0; color:#f6931f; font-weight:bold; font-size:24px" />
-   <link rel="stylesheet" href="d3.slider.css" />  
-   <div  id="slider"></div>
-	<div id="container1" style="position: relative; width: 80%; max-height: 450px;"></div>
+<p>   This is a map of CO2 intensity (in millions of tonnes of CO2 emissions per 10,000 USD (1990 dollars) economic output) by country by year from 1960 to 2008. CO2 intensity is a measure of carbon emissions that is more consistent across countries of varying levels of wealth than CO2 emissions per person.</p>
 
-   </div>
+<p>Move the slider towards the bottom of the page to select a year for viewing emissions. The light red color represents missing data.</p>
+
+<p>Demographic variables relevant to CO2 emissions, such as GDP and population size, are shown when hovering over a country.</p>
+
+
+<div class="d3-slider">
+<link rel="stylesheet" href="newslider.css" />  
+ <label for="slider" >CO2 Emission for Year: </label>
+ <span id="range" style="color:#f6931f; font-weight:bold; font-size:24px" >1960</span>
+ <input id="slider",class="slider" type="range" min="1960" max="2010" value="1960" step="1" herf="newslider.css" />
+</div>
+ <div id="container1" style="position: relative; width: 80%; max-height: 450px;"></div>
+
 
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="http://d3js.org/topojson.v1.min.js"></script>
   <!-- I recommend you host this file on your own, since this will change without warning -->
   <script src="http://datamaps.github.io/scripts/datamaps.world.min.js?v=1"></script>
   <script src="http://datamaps.github.io/scripts/datamaps.world.min.js"></script>
-  <script src="http://d3js.org/d3.v3.min.js"></script>
-  <script src="d3.slider.js"></script>
-<script>
+  <script src="https://raw.github.com/fryn/html5slider/master/html5slider.js"></script>
+  <script type="text/javascript"></script>
+  
 
+ <script>    
+onload = function() {
+  var $ = function(id) { return document.getElementById(id); };
+  $('slider').oninput = function() { $('range').innerHTML = this.value; };
+  $('slider').oninput();
+};
+</script>
+ 
+<p>CO2 emissions data comes from the <a href="http://www.globalcarbonproject.org/carbonbudget/index.htm">Global Carbon Budget</a>. GDP Data comes from the <a href="http://www.ggdc.net/maddison/maddison-project/home.htm">Maddison Project</a>. Population data comes from the <a href="http://esa.un.org/wpp/">UN World Population Prospects, 2012 edition</a>.</p>
+
+     <script>
 var width = 960,
     height = 600;
-
-
+function numberWithCommas(x) {
+    // Taken from https://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
+    if (x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    } else {
+        return x;
+    }
+}
 var
+//color_qmissing = 'rgb(216,149,149)',
+//color_qmissing = 'rgb(246,200,200)',
+color_qmissing = '#e4e4e4'
 color_q0 = 'rgb(198,219,239)',
 color_q1 = 'rgb(158,202,225)',
 color_q2 = 'rgb(107,174,214)',
@@ -67,19 +80,18 @@ colorScale = [
   color_q1,
   color_q0
 ] // array used to generate color scale
-
 var quantize = d3.scale.threshold()
 .domain([0.38, 0.68, 0.97, 1.33, 1.91, 2.99, 17.14])
 .range(d3.range(7).map(function(i) { return "q" + i; }));
-
 var jsonMilExp = {};
-
 var map = new Datamap({
   element: document.getElementById('container1'),
   projection: 'mercator',
   fills: {
-    defaultFill: 'rgb(222,235,247)',
+    defaultFill: color_qmissing, //'rgb(222,235,247)',
+//    defaultFill: 'rgb(216,149,149)', //'rgb(222,235,247)',
     // define colors for quantized scale
+    qmissing: color_qmissing,
     q0: color_q0,
     q1: color_q1,
     q2: color_q2,
@@ -91,21 +103,34 @@ var map = new Datamap({
   data: jsonMilExp,
   geographyConfig: {
     popupTemplate: function(geo, data) {
-if (data == null)
-        return '<div class="hoverinfo"><strong>No data available for ' + geo.properties.name + '</strong></div>';
-        return ['<div class="hoverinfo"><strong>', 
-               geo.properties.name, 
-           '<br/>Year: ' + data.Year, 
-           //'<br/>CO2 Intensity: ' + Math.round(data.Tech*1000)/1000,
-           '<br/>CO2 Intensity: ' + data.Tech,
-           //'<br/>GDP: ' + Math.round(data.GDP*1000)/1000, 
-           '<br/>GDP: ' + data.GDP,
-                '</strong></div>'].join('');
-               }
+        if (data == null) {
+            return '<div class="hoverinfo"><strong>No data available for ' + geo.properties.name + '</strong></div>';
+        } else {
+            if (data.Tech) {
+                str_tech =  '<br/>CO2 Intensity: ' + data.Tech + ' million tonnes per $10,000';
+            } else {
+                str_tech = '<br/>CO2 Intensity data missing';
+            }
+            if (data.GDP) {
+                str_gdp =  '<br/>GDP: $' + numberWithCommas(data.GDP);
+            } else {
+                str_gdp = '<br/>GDP data missing';
+            }
+ 
+            return ['<div class="hoverinfo"><strong>', 
+                   geo.properties.name, 
+               '<br/>Year: ' + data.Year, 
+//               '<br/>CO2 Intensity: ' + data.Tech + ' million tonnes per $10,000',
+               str_tech,
+//               '<br/>GDP per capita: $' + numberWithCommas(data.GDP),
+               str_gdp,
+               '<br/>Population: ' + numberWithCommas(Math.round(1000*data.Pop)),
+                    '</strong></div>'].join('');
+        }
+}
 },
   responsive: true
 });
-
 var fullData = {
     1960: {},
     1961: {},
@@ -159,62 +184,59 @@ var fullData = {
     2009: {},
     2010: {}
 };
-
+var get_fill = function(tech_val) {
+//function get_fill(tech_val) {
+    if (tech_val) {
+        return quantize(tech_val);
+    } else {
+        return 'qmissing';
+    }
+}
 var load_data = function(Year) {
+    console.log(get_fill(NaN));
     d3.csv("data_co2.csv", function (error, data) {
           data
             .forEach(function(d) {
                 // create data for map
                 fullData[d.Year][d.Isocode] = {
                   Iso: d.Isocode,
-                  fillKey: quantize(d.Tech),
+                  fillKey: get_fill(+d.Tech),
                   Year: +d.Year,
                   Tech: +d.Tech,
-                  GDP: +d.GDP
+                  GDP: +d.GDP,
+                  Pop: +d.PopTotal
                 };
               });
             });   
-
-    map.updateChoropleth(fullData[Year_tmp]);
+    for (var k in fullData) {
+        for (var k2 in fullData[k]) {
+            fullData[k][k2].fillKey = get_fill(fullData[k][k2].Tech);
+        }
+    }
+    map.updateChoropleth(fullData[Year]);
 //    update_data(Year);
 };
-
-
 var update_data = function(Year) {
     map.updateChoropleth(fullData[Year]);
 };
-
-
- 
-//load_data(1960);
-update_data(1960);
-
-d3.select('#slider').call(d3.slider().axis(true).min(1960).max(2010).step(1).on("slide",function(evt,value){
-	d3.select( "#amount" ).property("value", value);
-}));
-
-//d3.selectAll("input").on("change", function change() {
-//    var Year = +this.value;
-//    update_data(Year);
-//});
-
-
+load_data(1960);
+//update_data(1960);
+d3.selectAll("input").on("change", function change() {
+    var Year = this.value;
+    update_data(Year);
+});
 // append the container for the legend
 d3.select('svg')
   .append('g')
   .attr('class', 'legend');
-
 var
   legendBarWidth = 30,
   legendBarHeight = 10,
   legendOffsetX = 30,
   legendOffsetY = 400;
-
-
 var date = ["2.99" + "-" + "17.14", "1.91" + "-" + "2.99",
    "1.33" + "-" + "1.91", "0.97" + "-" + "1.33", "0.68" + "-" + "0.97",
     "0.38" + "-" + "0.68", "0" + "-" + "0.38" ];
-
 // draw the legend
 d3.select('.legend').selectAll('.legend')
 .data(colorScale)
@@ -227,7 +249,6 @@ d3.select('.legend').selectAll('.legend')
     .attr('width', legendBarWidth)
     .attr('height', legendBarHeight)
     .attr('fill', function(d){ return d; });
-
 d3.select('.legend').selectAll('.legend')
 .data(colorScale)
 .enter()
@@ -243,7 +264,6 @@ d3.select('.legend').selectAll('.legend')
     .attr("font-family", "sans-serif")
     .attr("font-size", "10px")
     .attr("fill", "black");
-
      
         d3.select('.legend').selectAll('.legend')
         .data(colorScale)
@@ -257,12 +277,6 @@ d3.select('.legend').selectAll('.legend')
             .attr("font-size", "12px")
             .attr("fill", "black");
             
-
-
-
-
   </script>
-   
-
+ 
 </body>
-</html>
